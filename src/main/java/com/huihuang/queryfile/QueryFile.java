@@ -1,4 +1,4 @@
-package com.huhuang.queryfile;
+package com.huihuang.queryfile;
 /**
  * *主函数入口
  * @author Raiden

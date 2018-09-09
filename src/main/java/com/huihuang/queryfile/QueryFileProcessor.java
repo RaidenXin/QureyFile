@@ -1,4 +1,4 @@
-package com.huhuang.queryfile;
+package com.huihuang.queryfile;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -19,6 +19,7 @@ import java.util.List;
 public class QueryFileProcessor {
 
 	private static final int SIZE = 1024;
+	private static final String ENPTY_STR = "";
 	/**
 	 * *查询文件的方法,如果是文件则直接访问其内容,如果不是则遍历其子目录
 	 * @param path
@@ -50,7 +51,7 @@ public class QueryFileProcessor {
 	 * @return
 	 */
 	private String getLocalPath(String path) {
-		if (null == path || "".equals(path)) {
+		if (null == path || ENPTY_STR.equals(path)) {
 			String jarWholePath = QueryFileProcessor.class.getProtectionDomain().getCodeSource().getLocation().getFile();
 			try {
 				jarWholePath = java.net.URLDecoder.decode(jarWholePath, Charset.defaultCharset().name());
@@ -72,7 +73,7 @@ public class QueryFileProcessor {
 	private String fileParse(File file,String endFileName) {
 		String fileName = file.getName();
 		ByteBuffer buffer = ByteBuffer.allocate(SIZE);
-		StringBuffer stringBuffer = new StringBuffer("");
+		StringBuffer stringBuffer = new StringBuffer(ENPTY_STR);
 		if (file.isFile() && fileName.endsWith(endFileName)) {
 			FileChannel fileChannel = null;
 			try {

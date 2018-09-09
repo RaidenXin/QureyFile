@@ -1,4 +1,4 @@
-package com.huhuang.queryfile;
+package com.huihuang.queryfile;
 
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;

@@ -1,4 +1,4 @@
-package com.huhuang.queryfile;
+package com.huihuang.queryfile;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
