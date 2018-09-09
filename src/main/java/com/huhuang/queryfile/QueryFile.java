@@ -1,5 +1,9 @@
 package com.huhuang.queryfile;
-
+/**
+ * *主函数入口
+ * @author Raiden
+ *
+ */
 public class QueryFile {
 
 	public static void main(String[] args) {

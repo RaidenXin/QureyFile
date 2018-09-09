@@ -11,11 +11,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-
+/**
+ * *主要工作函数
+ * @author Raiden
+ *
+ */
 public class QueryFileProcessor {
 
 	private static final int SIZE = 1024;
-	
+	/**
+	 * *查询文件的方法,如果是文件则直接访问其内容,如果不是则遍历其子目录
+	 * @param path
+	 * @param endFileName
+	 * @param content
+	 * @return
+	 */
 	public List<String> queryFile(String path,String endFileName,String content) {
 		path = getLocalPath(path);
 		List<String> result = new ArrayList<>();
@@ -34,7 +44,11 @@ public class QueryFileProcessor {
 		}
 		return result;
 	}
-	
+	/**
+	 * *填写的文件地址为空,则默认使用当前运行文件所在地址
+	 * @param path
+	 * @return
+	 */
 	private String getLocalPath(String path) {
 		if (null == path || "".equals(path)) {
 			String jarWholePath = QueryFileProcessor.class.getProtectionDomain().getCodeSource().getLocation().getFile();
@@ -48,7 +62,12 @@ public class QueryFileProcessor {
 		return path;
 	}
 	
-	
+	/**
+	 * *解析文件返回文件内容字符串
+	 * @param file
+	 * @param endFileName
+	 * @return
+	 */
 	@SuppressWarnings("resource")
 	private String fileParse(File file,String endFileName) {
 		String fileName = file.getName();

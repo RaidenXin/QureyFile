@@ -46,7 +46,6 @@ public class TextArea extends JFrame{
 		add(new JScrollPane(endFileNameText));
 		add(new JScrollPane(contentText));
 		add(b1);
-		setResizable(false);
 	}
 	
 	private List<String> getFileNames(String path,String fileType,String content){
