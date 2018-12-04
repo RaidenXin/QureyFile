@@ -1,14 +1,19 @@
 package com.huihuang.queryfile;
 
+import com.huihuang.queryfile.Utils.FileUtils;
+import com.huihuang.queryfile.thread.QueryFileTask;
+
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 /**
@@ -18,8 +23,13 @@ import java.util.List;
  */
 public class QueryFileProcessor {
 
-	private static final int SIZE = 1024;
-	private static final String ENPTY_STR = "";
+	public static final int SIZE = 1024;
+	public static final String ENPTY_STR = "";
+	public static final String Non_existent = "搜索的文件中不存在该元素！";
+
+	private static final int MAX_NUMBER = 1000;
+	private static final ExecutorService executors =  Executors.newScheduledThreadPool(20);
+
 	/**
 	 * *查询文件的方法,如果是文件则直接访问其内容,如果不是则遍历其子目录
 	 * @param path
@@ -28,20 +38,37 @@ public class QueryFileProcessor {
 	 * @return
 	 */
 	public List<String> queryFile(String path,String endFileName,String content) {
-		path = getLocalPath(path);
 		List<String> result = new ArrayList<>();
-		File file = new File(path);
+		File file = new File(getLocalPath(path));
+		CountDownLatch countDownLatch = null;
 		if (!file.isFile()) {
 			File[] files = file.listFiles();
-			for (File file2 : files) {
-				if (fileParse(file2, endFileName).contains(content)) {
-					result.add(file2.getName());
+			int length = files.length;
+			if (length > MAX_NUMBER){
+				int n = length / MAX_NUMBER + 1;
+				countDownLatch = new CountDownLatch(n);
+				for (int i = 0;i < n; i++){
+					int start = i * MAX_NUMBER;
+					int end = i == n -1? length : (i + 1) * MAX_NUMBER;
+					Runnable task = new QueryFileTask(result,files,countDownLatch,start,end,endFileName,content);
+					executors.submit(task);
 				}
+				try{
+					countDownLatch.await();
+				}catch (Exception e){
+					e.printStackTrace();
+				}
+			}else{
+				Runnable task = new QueryFileTask(result,files,countDownLatch,0,length,endFileName,content);
+				task.run();
 			}
 		}else {
-			if (fileParse(file, endFileName).contains(content)) {
+			if (FileUtils.fileParse(file, endFileName).contains(content)) {
 				result.add(file.getName());
 			}
+		}
+		if (result.isEmpty()){
+			result.add(Non_existent);
 		}
 		return result;
 	}
@@ -61,39 +88,5 @@ public class QueryFileProcessor {
 			path = new File(jarWholePath).getParentFile().getAbsolutePath();
 		}
 		return path;
-	}
-	
-	/**
-	 * *解析文件返回文件内容字符串
-	 * @param file
-	 * @param endFileName
-	 * @return
-	 */
-	@SuppressWarnings("resource")
-	private String fileParse(File file,String endFileName) {
-		String fileName = file.getName();
-		ByteBuffer buffer = ByteBuffer.allocate(SIZE);
-		StringBuffer stringBuffer = new StringBuffer(ENPTY_STR);
-		if (file.isFile() && fileName.endsWith(endFileName)) {
-			FileChannel fileChannel = null;
-			try {
-				Charset encoded = Charset.defaultCharset();
-				fileChannel = new FileInputStream(file).getChannel();
-				while (fileChannel.read(buffer) != -1) {
-					buffer.flip();
-					stringBuffer.append(encoded.decode(buffer));
-					buffer.clear();
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}finally {
-				try {
-					fileChannel.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		return stringBuffer.toString();
 	}
 }
