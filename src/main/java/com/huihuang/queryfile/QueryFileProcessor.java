@@ -4,10 +4,7 @@ import com.huihuang.queryfile.Utils.FileUtils;
 import com.huihuang.queryfile.thread.QueryFileTask;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.UnsupportedEncodingException;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +34,7 @@ public class QueryFileProcessor {
 	 * @param content
 	 * @return
 	 */
-	public List<String> queryFile(String path,String endFileName,String content) {
+	public List<String> queryFile(String path, String endFileName, String content) {
 		List<String> result = new ArrayList<>();
 		File file = new File(getLocalPath(path));
 		CountDownLatch countDownLatch = null;
@@ -50,7 +47,7 @@ public class QueryFileProcessor {
 				for (int i = 0;i < n; i++){
 					int start = i * MAX_NUMBER;
 					int end = i == n -1? length : (i + 1) * MAX_NUMBER;
-					Runnable task = new QueryFileTask(result,files,countDownLatch,start,end,endFileName,content);
+					Runnable task = new QueryFileTask(result, files, countDownLatch, start, end, endFileName, content);
 					executors.submit(task);
 				}
 				try{
@@ -59,7 +56,7 @@ public class QueryFileProcessor {
 					e.printStackTrace();
 				}
 			}else{
-				Runnable task = new QueryFileTask(result,files,countDownLatch,0,length,endFileName,content);
+				Runnable task = new QueryFileTask(result, files, countDownLatch, 0, length, endFileName, content);
 				task.run();
 			}
 		}else {
