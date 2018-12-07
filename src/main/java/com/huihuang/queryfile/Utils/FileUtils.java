@@ -11,7 +11,6 @@ import java.nio.charset.Charset;
 
 import org.apache.poi.POIXMLDocument;
 import org.apache.poi.POIXMLTextExtractor;
-import org.apache.poi.hwpf.HWPFDocument;
 import org.apache.poi.hwpf.extractor.WordExtractor;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.xssf.usermodel.XSSFCell;
@@ -19,7 +18,6 @@ import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
-import org.junit.jupiter.api.Test;
 
 public class FileUtils {
 
