@@ -34,7 +34,7 @@ public class QueryFileProcessor {
 	 * @param content
 	 * @return
 	 */
-	public List<String> queryFile(String path, String endFileName, String content) {
+	public List<String> queryFile(String path,String endFileName,String content) {
 		List<String> result = new ArrayList<>();
 		File file = new File(getLocalPath(path));
 		CountDownLatch countDownLatch = null;
@@ -42,19 +42,7 @@ public class QueryFileProcessor {
 			File[] files = file.listFiles();
 			int length = files.length;
 			if (length > MAX_NUMBER){
-				int n = length / MAX_NUMBER + 1;
-				countDownLatch = new CountDownLatch(n);
-				for (int i = 0;i < n; i++){
-					int start = i * MAX_NUMBER;
-					int end = i == n -1? length : (i + 1) * MAX_NUMBER;
-					Runnable task = new QueryFileTask(result, files, countDownLatch, start, end, endFileName, content);
-					executors.submit(task);
-				}
-				try{
-					countDownLatch.await();
-				}catch (Exception e){
-					e.printStackTrace();
-				}
+			    multithreadingParse(result,files,countDownLatch,endFileName,content,length);
 			}else{
 				Runnable task = new QueryFileTask(result, files, countDownLatch, 0, length, endFileName, content);
 				task.run();
@@ -69,6 +57,7 @@ public class QueryFileProcessor {
 		}
 		return result;
 	}
+
 	/**
 	 * *填写的文件地址为空,则默认使用当前运行文件所在地址
 	 * @param path
@@ -86,4 +75,29 @@ public class QueryFileProcessor {
 		}
 		return path;
 	}
+
+    /**
+     * 多线程解析方法
+     * @param result
+     * @param files
+     * @param countDownLatch
+     * @param endFileName
+     * @param content
+     * @param length
+     */
+	private void multithreadingParse(List<String> result,File[] files,CountDownLatch countDownLatch,String endFileName,String content,int length){
+        int n = length / MAX_NUMBER + 1;
+        countDownLatch = new CountDownLatch(n);
+        for (int i = 0;i < n; i++){
+            int start = i * MAX_NUMBER;
+            int end = i == n -1? length : (i + 1) * MAX_NUMBER;
+            Runnable task = new QueryFileTask(result, files, countDownLatch, start, end, endFileName, content);
+            executors.submit(task);
+        }
+        try{
+            countDownLatch.await();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
 }
