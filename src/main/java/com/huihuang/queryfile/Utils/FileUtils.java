@@ -9,10 +9,17 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 
+import org.apache.poi.POIXMLDocument;
+import org.apache.poi.POIXMLTextExtractor;
+import org.apache.poi.hwpf.HWPFDocument;
+import org.apache.poi.hwpf.extractor.WordExtractor;
+import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
+import org.junit.jupiter.api.Test;
 
 public class FileUtils {
 
@@ -20,6 +27,9 @@ public class FileUtils {
     private static final String EXCEL2003 = ".xls";
     private static final String HTML = ".html";
     private static final String TXT = ".txt";
+    private static final String XML = ".xml";
+    private static final String WORD2003 = "doc";
+    private static final String WORD2007 = "docx";
 
     /**
      * *解析文件返回文件内容字符串
@@ -32,8 +42,10 @@ public class FileUtils {
         if (file.isFile()){
             if(EXCEL2003.equals(endFileName) || EXCEL2007.equals(endFileName)){
                 return parseExcel(file,endFileName);
-            }else if (HTML.equals(endFileName) || TXT.equals(endFileName)){
+            }else if (HTML.equals(endFileName) || TXT.equals(endFileName) || XML.equals(endFileName)){
                 return parseHtmlAndTxt(file,endFileName);
+            }else if (WORD2003.equals(endFileName) || WORD2007.equals(endFileName)){
+                return parseWord(file,endFileName);
             }
         }
         return StringUtils.EMPTY;
@@ -71,23 +83,25 @@ public class FileUtils {
      * @return
      */
     private static String parseExcel(File file, String endFileName){
-        StringBuffer stringBuffer = new StringBuffer(QueryFileProcessor.ENPTY_STR);
-        try (InputStream is = new FileInputStream(file);) {
-            XSSFWorkbook xssfWorkbook = new XSSFWorkbook(is);
-            for (int numSheet = 0,n = xssfWorkbook.getNumberOfSheets(); numSheet < n; numSheet++) {
-                XSSFSheet xssfSheet = xssfWorkbook.getSheetAt(numSheet);
-                if (null == xssfSheet){
-                    continue;
+        StringBuilder builder = new StringBuilder(StringUtils.EMPTY);
+        if (file.isFile() && file.getName().endsWith(endFileName)) {
+            try (InputStream is = new FileInputStream(file)) {
+                XSSFWorkbook xssfWorkbook = new XSSFWorkbook(is);
+                for (int numSheet = 0,n = xssfWorkbook.getNumberOfSheets(); numSheet < n; numSheet++) {
+                    XSSFSheet xssfSheet = xssfWorkbook.getSheetAt(numSheet);
+                    if (null == xssfSheet){
+                        continue;
+                    }
+                    for (int j = 0, x = xssfSheet.getLastRowNum() + 1; j < x;j++){
+                        XSSFRow row = xssfSheet.getRow(j);
+                        builder.append(getValue(row));
+                    }
                 }
-                for (int j = 0, x = xssfSheet.getLastRowNum() + 1; j < x;j++){
-                    XSSFRow row = xssfSheet.getRow(j);
-                    stringBuffer.append(getValue(row));
-                }
+            }catch (Exception e){
+                e.printStackTrace();
             }
-        }catch (Exception e){
-            e.printStackTrace();
         }
-        return stringBuffer.toString();
+        return builder.toString();
     }
 
     /**
@@ -108,4 +122,29 @@ public class FileUtils {
         return builder.toString();
     }
 
+    /**
+     * 解析Word文档
+     * @param file
+     * @param endFileName
+     * @return
+     */
+    private static String parseWord(File file, String endFileName){
+        StringBuilder builder = new StringBuilder(StringUtils.EMPTY);
+        if (file.isFile()) {
+            try(FileInputStream fileInputStream = new FileInputStream(file)){
+                String fileName = file.getName();
+                if (fileName.endsWith(WORD2003)){
+                    WordExtractor ex = new WordExtractor(fileInputStream);
+                    builder.append(ex.getText());
+                }else if (fileName.endsWith(WORD2007)){
+                    OPCPackage opcPackage = POIXMLDocument.openPackage(file.getPath());
+                    POIXMLTextExtractor extractor = new XWPFWordExtractor(opcPackage);
+                    builder.append(extractor.getText());
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+        return builder.toString();
+    }
 }
