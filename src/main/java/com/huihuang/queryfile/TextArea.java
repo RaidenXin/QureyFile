@@ -1,5 +1,7 @@
 package com.huihuang.queryfile;
 
+import com.huihuang.queryfile.Utils.StringUtils;
+
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -21,19 +23,23 @@ public class TextArea extends JFrame{
 	private static final String PATH_TEXT = "请填写文件所在路径";
 	private static final String END_FILE_NAME_TEXT = "请填写文件后缀";
 	private static final String CONTENT_TEXT = "请填写要查询内容";
+	private static final String END = "!";
 	
 	private JButton b1 = new JButton("Query");
 	private JTextArea t = new JTextArea(20,40);
 	private JTextArea pathText = new JTextArea(1,38);
 	private JTextArea endFileNameText = new JTextArea(1,38);
 	private JTextArea contentText = new JTextArea(1,38);
+
+
 	public TextArea() {
-		pathText.setText(PATH_TEXT);
-		endFileNameText.setText(END_FILE_NAME_TEXT);
-		contentText.setText(CONTENT_TEXT);
+		pathText.setText(PATH_TEXT + END);
+		endFileNameText.setText(END_FILE_NAME_TEXT + END);
+		contentText.setText(CONTENT_TEXT + END);
 		b1.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				t.setText(StringUtils.EMPTY);
 				List<String> fileNames = getFileNames(pathText.getText(), endFileNameText.getText(), contentText.getText());
 				for (String fileName : fileNames) {
 					t.append(fileName + "\n");

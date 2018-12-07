@@ -1,14 +1,8 @@
 package com.huihuang.queryfile.thread;
 
-import com.huihuang.queryfile.QueryFileProcessor;
 import com.huihuang.queryfile.Utils.FileUtils;
 
 import java.io.File;
-
-import java.io.FileInputStream;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.charset.Charset;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
@@ -22,7 +16,7 @@ public class QueryFileTask implements Runnable {
     private int end;
     private CountDownLatch countDownLatch;
 
-    public QueryFileTask(List<String> fileNames, File[] files, CountDownLatch countDownLatch,int start, int end, String endFileName, String content){
+    public QueryFileTask(List<String> fileNames,File[] files,CountDownLatch countDownLatch,int start, int end, String endFileName, String content){
         this.endFileName = endFileName;
         this.content = content;
         this.fileNames = fileNames;
