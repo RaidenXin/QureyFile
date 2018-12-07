@@ -100,14 +100,8 @@ public class FileUtils {
         if (null != row){
             for (int i = 0,n = row.getLastCellNum(); i < n; i++){
                 XSSFCell xssfCell = row.getCell(i);
-                if (xssfCell.getCellType() == xssfCell.CELL_TYPE_BOOLEAN) {
-                    builder.append(String.valueOf(xssfCell.getBooleanCellValue()));
-                } else if (xssfCell.getCellType() == xssfCell.CELL_TYPE_NUMERIC) {
-                    System.err.println(xssfCell.getNumericCellValue());
-                    builder.append(String.valueOf(xssfCell.getNumericCellValue()));
-                } else {
-                    builder.append(String.valueOf(xssfCell.getStringCellValue()));
-                }
+                xssfCell.setCellType(XSSFCell.CELL_TYPE_STRING);
+                builder.append(String.valueOf(xssfCell.getStringCellValue()));
                 builder.append(";");
             }
         }
