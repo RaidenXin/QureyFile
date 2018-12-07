@@ -1,6 +1,6 @@
 package com.huihuang.queryfile.Utils;
 
-import com.huihuang.queryfile.QueryFileProcessor;
+import com.huihuang.queryfile.handler.QueryFileProcessor;
 
 import java.io.File;
 import java.io.FileInputStream;
