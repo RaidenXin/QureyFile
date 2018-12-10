@@ -1,6 +1,7 @@
 package com.huihuang.queryfile.handler;
 
 import com.huihuang.queryfile.Utils.FileUtils;
+import com.huihuang.queryfile.information.Information;
 import com.huihuang.queryfile.thread.QueryFileTask;
 
 import java.io.File;
@@ -8,6 +9,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -25,7 +27,8 @@ public class QueryFileProcessor {
 	public static final String Non_existent = "搜索的文件中不存在该元素！";
 
 	private static final int MAX_NUMBER = 1000;
-	private static final ExecutorService executors =  Executors.newScheduledThreadPool(20);
+	private static final ExecutorService executors =  Executors.newScheduledThreadPool(10);
+	private static final Stack<String> NEW_PATH_STACK = new Stack<>();
 
 	/**
 	 * *查询文件的方法,如果是文件则直接访问其内容,如果不是则遍历其子目录
@@ -41,12 +44,7 @@ public class QueryFileProcessor {
 		if (!file.isFile()) {
 			File[] files = file.listFiles();
 			int length = files.length;
-			if (length > MAX_NUMBER){
-			    multithreadingParse(result,files,countDownLatch,endFileName,content,length);
-			}else{
-				Runnable task = new QueryFileTask(result, files, countDownLatch, 0, length, endFileName, content);
-				task.run();
-			}
+			multithreadingParse(result,files,countDownLatch,endFileName,content,length);
 		}else {
 			if (FileUtils.fileParse(file, endFileName).contains(content)) {
 				result.add(file.getName());
@@ -89,9 +87,10 @@ public class QueryFileProcessor {
         int n = length / MAX_NUMBER + 1;
         countDownLatch = new CountDownLatch(n);
         for (int i = 0;i < n; i++){
-            int start = i * MAX_NUMBER;
-            int end = i == n -1? length : (i + 1) * MAX_NUMBER;
-            Runnable task = new QueryFileTask(result, files, countDownLatch, start, end, endFileName, content);
+            int startIndex = i * MAX_NUMBER;
+            int endIndex = i == n -1? length : (i + 1) * MAX_NUMBER;
+			Information information = new Information(NEW_PATH_STACK, files, countDownLatch, startIndex, endIndex, endFileName, content);
+            Runnable task = new QueryFileTask(result, information);
             executors.submit(task);
         }
         try{
@@ -99,5 +98,9 @@ public class QueryFileProcessor {
         }catch (Exception e){
             e.printStackTrace();
         }
+        if (!NEW_PATH_STACK.empty()){
+        	String newPath = NEW_PATH_STACK.pop();
+        	queryFile(newPath, endFileName, content);
+		}
     }
 }
