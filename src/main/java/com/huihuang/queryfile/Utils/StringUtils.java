@@ -10,4 +10,8 @@ public class StringUtils {
         }
         return false;
     }
+
+    public static boolean isNonBlank(String value){
+        return !isBlank(value);
+    }
 }

@@ -1,7 +1,9 @@
 package com.huihuang.queryfile.thread;
 
 import com.huihuang.queryfile.Utils.FileUtils;
+import com.huihuang.queryfile.controller.Controller;
 import com.huihuang.queryfile.information.Information;
+import com.huihuang.queryfile.information.TaskInformation;
 
 import java.io.File;
 import java.util.List;
@@ -17,7 +19,7 @@ public class QueryFileTask implements Runnable {
     private int startIndex;
     private int endIndex;
     private CountDownLatch countDownLatch;
-    private Stack<String> NEW_PATH_STACK;
+    private Controller controller;
 
     public QueryFileTask(List<String> fileNames, Information information){
         this.endFileName = information.getEndFileName();
@@ -27,7 +29,7 @@ public class QueryFileTask implements Runnable {
         this.startIndex = information.getStartIndex();
         this.endIndex = information.getEndIndex();
         this.countDownLatch = information.getCountDownLatch();
-        this.NEW_PATH_STACK = information.getNewPathStack();
+        this.controller = information.getController();
     }
 
     @Override
@@ -43,7 +45,7 @@ public class QueryFileTask implements Runnable {
                 }
             }else if (!file.isFile()){
                 String newPath = file.getPath();
-                NEW_PATH_STACK.push(newPath);
+                controller.push(newPath, endFileName, content);
             }
         }
         if (null != countDownLatch){
