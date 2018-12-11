@@ -1,5 +1,8 @@
 package com.huihuang.queryfile.information;
 
+/**
+ * 任务信息类
+ */
 public class TaskInformation {
 
     private String path;

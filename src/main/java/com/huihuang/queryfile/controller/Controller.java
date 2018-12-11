@@ -12,6 +12,9 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+/**
+ * 主控制器类，包含一个任务信息队列。在搜索文件中如果遇到有文件夹的类型，则添加到这个队列中。
+ */
 public class Controller {
 
     private static final String PATH_TEXT = "请填写文件所在路径";
@@ -32,6 +35,12 @@ public class Controller {
         this.t = t;
     }
 
+    /**
+     * 带唤醒主线程的添加任务
+     * @param path
+     * @param endFileName
+     * @param content
+     */
     public void add(String path,String endFileName,String content){
         taskStack.push(new TaskInformation(path, endFileName, content));
         lock.lock();
@@ -42,10 +51,19 @@ public class Controller {
         }
     }
 
+    /**
+     * 添加任务
+     * @param path
+     * @param endFileName
+     * @param content
+     */
     public void push(String path,String endFileName,String content){
         taskStack.push(new TaskInformation(path, endFileName, content));
     }
 
+    /**
+     * 启动主线程，把任务信息队列中的任务信息一个一个取出，并执行搜索
+     */
     public void start(){
         Runnable task = new Runnable() {
             @Override
@@ -80,6 +98,13 @@ public class Controller {
         thread.start();
     }
 
+    /**
+     * 获取包含查询内容的文件名称
+     * @param path
+     * @param fileType
+     * @param content
+     * @return
+     */
     private List<String> getFileNames(String path,String fileType,String content){
         if (END_FILE_NAME_TEXT.equals(fileType) && CONTENT_TEXT.equals(content)) {
             return Collections.emptyList();

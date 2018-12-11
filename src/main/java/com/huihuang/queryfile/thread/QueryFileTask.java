@@ -10,6 +10,9 @@ import java.util.List;
 import java.util.Stack;
 import java.util.concurrent.CountDownLatch;
 
+/**
+ * 查询任务工作线程类
+ */
 public class QueryFileTask implements Runnable {
 
     private String endFileName;
@@ -44,6 +47,7 @@ public class QueryFileTask implements Runnable {
                     }
                 }
             }else if (!file.isFile()){
+                //如果不是文件，则加入任务队列中
                 String newPath = file.getPath();
                 controller.push(newPath, endFileName, content);
             }
