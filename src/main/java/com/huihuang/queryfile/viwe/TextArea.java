@@ -2,6 +2,7 @@ package com.huihuang.queryfile.viwe;
 
 import com.huihuang.queryfile.controller.Controller;
 import com.huihuang.queryfile.handler.QueryFileProcessor;
+import com.huihuang.queryfile.controller.Controller;
 import com.huihuang.queryfile.Utils.StringUtils;
 import com.huihuang.queryfile.logs.LogHandler;
 
@@ -33,12 +34,10 @@ public class TextArea extends JFrame{
 	private JTextArea pathText = new JTextArea(1,38);
 	private JTextArea endFileNameText = new JTextArea(1,38);
 	private JTextArea contentText = new JTextArea(1,38);
-	private Controller controller = new Controller(t);
 
 	private LogHandler handler = new LogHandler();
 
 	public TextArea() {
-		controller.start();
 		pathText.setText(PATH_TEXT + END);
 		endFileNameText.setText(END_FILE_NAME_TEXT + END);
 		contentText.setText(CONTENT_TEXT + END);
@@ -46,7 +45,10 @@ public class TextArea extends JFrame{
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				t.setText(StringUtils.EMPTY);
-				controller.add(pathText.getText(), endFileNameText.getText(), contentText.getText());
+				List<String> fileNames = getFileNames(pathText.getText(), endFileNameText.getText(), contentText.getText());
+				for (String fileName : fileNames) {
+					t.append(fileName + "\n");
+				}
 			}
 		});
 		setLayout(new FlowLayout());
@@ -56,5 +58,16 @@ public class TextArea extends JFrame{
 		add(new JScrollPane(contentText));
 		add(b1);
 		handler.start();
+	}
+	
+	private List<String> getFileNames(String path,String fileType,String content){
+		if (END_FILE_NAME_TEXT.equals(fileType) && CONTENT_TEXT.equals(content)) {
+			return Collections.emptyList();
+		}
+		QueryFileProcessor processor = new QueryFileProcessor();
+		if (PATH_TEXT.equals(path)) {
+			path = null;
+		}
+		return processor.queryFile(path,"." + fileType, content);
 	}
 }
