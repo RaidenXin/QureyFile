@@ -45,6 +45,12 @@
           <artifactId>poi-scratchpad</artifactId>
           <version>3.17</version>
       </dependency>
+      <dependency>
+          <groupId>org.junit.jupiter</groupId>
+          <artifactId>junit-jupiter-api</artifactId>
+          <version>RELEASE</version>
+          <scope>test</scope>
+      </dependency>
 
 
   </dependencies>
