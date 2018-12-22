@@ -2,6 +2,7 @@ package com.huihuang.queryfile.viwe;
 
 import com.huihuang.queryfile.handler.QueryFileProcessor;
 import com.huihuang.queryfile.Utils.StringUtils;
+import com.huihuang.queryfile.logs.LogHandler;
 
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -32,6 +33,7 @@ public class TextArea extends JFrame{
 	private JTextArea endFileNameText = new JTextArea(1,38);
 	private JTextArea contentText = new JTextArea(1,38);
 
+	private LogHandler handler = new LogHandler();
 
 	public TextArea() {
 		pathText.setText(PATH_TEXT + END);
@@ -53,6 +55,7 @@ public class TextArea extends JFrame{
 		add(new JScrollPane(endFileNameText));
 		add(new JScrollPane(contentText));
 		add(b1);
+		handler.start();
 	}
 	
 	private List<String> getFileNames(String path,String fileType,String content){

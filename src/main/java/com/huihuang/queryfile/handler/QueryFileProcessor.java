@@ -2,6 +2,7 @@ package com.huihuang.queryfile.handler;
 
 import com.huihuang.queryfile.Utils.FileUtils;
 import com.huihuang.queryfile.information.Information;
+import com.huihuang.queryfile.logs.Logger;
 import com.huihuang.queryfile.thread.QueryFileTask;
 
 import java.io.File;
@@ -26,9 +27,11 @@ public class QueryFileProcessor {
 	public static final String ENPTY_STR = "";
 	public static final String Non_existent = "搜索的文件中不存在该元素！";
 
+	private static final String savePath = "filesfound";
 	private static final int MAX_NUMBER = 1000;
 	private static final ExecutorService executors =  Executors.newScheduledThreadPool(10);
 	private static final Stack<String> NEW_PATH_STACK = new Stack<>();
+	private static final Logger logger = Logger.newInstance();
 
 	/**
 	 * *查询文件的方法,如果是文件则直接访问其内容,如果不是则遍历其子目录
@@ -53,6 +56,7 @@ public class QueryFileProcessor {
 		if (result.isEmpty()){
 			result.add(Non_existent);
 		}
+		logger.info("处理结束！");
 		return result;
 	}
 
@@ -67,7 +71,7 @@ public class QueryFileProcessor {
 			try {
 				jarWholePath = java.net.URLDecoder.decode(jarWholePath, Charset.defaultCharset().name());
 			} catch (UnsupportedEncodingException e) {
-				System.out.println(e.toString());
+				logger.error(e.getMessage());
 			}
 			path = new File(jarWholePath).getParentFile().getAbsolutePath();
 		}
@@ -84,19 +88,21 @@ public class QueryFileProcessor {
      * @param length
      */
 	private void multithreadingParse(List<String> result,File[] files,CountDownLatch countDownLatch,String endFileName,String content,int length){
+		logger.info("开始解析文件！");
+		logger.info("共有" + length + "个文件需要处理！");
         int n = length / MAX_NUMBER + 1;
         countDownLatch = new CountDownLatch(n);
         for (int i = 0;i < n; i++){
             int startIndex = i * MAX_NUMBER;
             int endIndex = i == n -1? length : (i + 1) * MAX_NUMBER;
-			Information information = new Information(NEW_PATH_STACK, files, countDownLatch, startIndex, endIndex, endFileName, content);
+            Information information = new Information(NEW_PATH_STACK, files, countDownLatch, startIndex, endIndex, endFileName, content);
             Runnable task = new QueryFileTask(result, information);
             executors.submit(task);
         }
         try{
             countDownLatch.await();
         }catch (Exception e){
-            e.printStackTrace();
+			logger.error(e);
         }
         if (!NEW_PATH_STACK.empty()){
         	String newPath = NEW_PATH_STACK.pop();

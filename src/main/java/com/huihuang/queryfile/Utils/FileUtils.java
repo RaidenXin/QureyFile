@@ -29,6 +29,9 @@ public class FileUtils {
     private static final String WORD2003 = "doc";
     private static final String WORD2007 = "docx";
 
+
+    private static final String GBK = "gbk";
+    private static final String UTF8 = "utf-8";
     /**
      * *解析文件返回文件内容字符串
      * @param file
@@ -61,7 +64,7 @@ public class FileUtils {
         StringBuffer stringBuffer = new StringBuffer(QueryFileProcessor.ENPTY_STR);
         if (file.isFile() && fileName.endsWith(endFileName)) {
             try (FileChannel fileChannel = new FileInputStream(file).getChannel()) {
-                Charset encoded = Charset.defaultCharset();
+                Charset encoded = Charset.forName(GBK);
                 while (fileChannel.read(buffer) != -1) {
                     buffer.flip();
                     stringBuffer.append(encoded.decode(buffer));
