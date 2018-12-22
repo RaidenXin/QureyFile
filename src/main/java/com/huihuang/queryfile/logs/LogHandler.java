@@ -15,6 +15,14 @@ public class LogHandler {
     private static final String Error_Log_File_Name = "ErrorMain.log";
     private static final LogsStack stack = LogsStack.newInstance();
     private static final String savePath = LogHandler.class.getProtectionDomain().getCodeSource().getLocation().getFile();
+    private static final LogHandler logHandler = new LogHandler();
+
+    private LogHandler(){
+    }
+
+    public static final LogHandler newInstance(){
+        return logHandler;
+    }
 
     public void start(){
         Runnable task = new Runnable() {

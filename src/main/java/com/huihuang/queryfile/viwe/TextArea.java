@@ -3,6 +3,8 @@ package com.huihuang.queryfile.viwe;
 import com.huihuang.queryfile.controller.Controller;
 import com.huihuang.queryfile.handler.QueryFileProcessor;
 import com.huihuang.queryfile.Utils.StringUtils;
+import com.huihuang.queryfile.logs.LogHandler;
+import sun.rmi.runtime.Log;
 
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -33,7 +35,7 @@ public class TextArea extends JFrame{
 	private JTextArea endFileNameText = new JTextArea(1,38);
 	private JTextArea contentText = new JTextArea(1,38);
 	private Controller controller = new Controller(t);
-
+	private LogHandler handler = LogHandler.newInstance();
 
 	public TextArea() {
 		controller.start();
@@ -53,5 +55,6 @@ public class TextArea extends JFrame{
 		add(new JScrollPane(endFileNameText));
 		add(new JScrollPane(contentText));
 		add(b1);
+		handler.start();
 	}
 }
