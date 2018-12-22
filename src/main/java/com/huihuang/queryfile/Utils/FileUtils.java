@@ -39,7 +39,7 @@ public class FileUtils {
      * @return
      */
     @SuppressWarnings("resource")
-    public static  String fileParse(File file, String endFileName) {
+    public static String fileParse(File file, String endFileName) {
         if (file.isFile()){
             if(EXCEL2003.equals(endFileName) || EXCEL2007.equals(endFileName)){
                 return parseExcel(file,endFileName);

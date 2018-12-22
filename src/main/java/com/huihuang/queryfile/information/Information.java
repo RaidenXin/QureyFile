@@ -1,5 +1,7 @@
 package com.huihuang.queryfile.information;
 
+import com.huihuang.queryfile.controller.Controller;
+
 import java.io.File;
 import java.util.Stack;
 import java.util.concurrent.CountDownLatch;
@@ -15,16 +17,16 @@ public class Information {
     private String content;
     private int startIndex;
     private int endIndex;
-    private Stack<String> newPathStack;
+    private Controller controller;
 
-    public Information(Stack<String> newPath, File[] files, CountDownLatch countDownLatch, int start, int end, String endFileName, String content){
+    public Information(Controller controller, File[] files, CountDownLatch countDownLatch, int start, int end, String endFileName, String content){
         this.endFileName = endFileName;
         this.content = content;
-        this.newPathStack = newPath;
         this.files = files;
         this.startIndex = start;
         this.endIndex = end;
         this.countDownLatch = countDownLatch;
+        this.controller = controller;
     }
 
     public File[] getFiles() {
@@ -75,11 +77,11 @@ public class Information {
         this.endIndex = endIndex;
     }
 
-    public Stack<String> getNewPathStack() {
-        return newPathStack;
+    public Controller getController() {
+        return controller;
     }
 
-    public void setNewPathStack(Stack<String> newPathStack) {
-        this.newPathStack = newPathStack;
+    public void setController(Controller controller) {
+        this.controller = controller;
     }
 }
