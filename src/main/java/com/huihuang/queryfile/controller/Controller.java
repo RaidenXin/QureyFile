@@ -3,6 +3,7 @@ package com.huihuang.queryfile.controller;
 import com.huihuang.queryfile.Utils.StringUtils;
 import com.huihuang.queryfile.handler.QueryFileProcessor;
 import com.huihuang.queryfile.information.TaskInformation;
+import com.huihuang.queryfile.logs.Logger;
 
 import javax.swing.*;
 import java.util.Collections;
@@ -23,6 +24,7 @@ public class Controller {
     private Condition condition;
     private QueryFileProcessor processor;
     private JTextArea t;
+    private Logger logger = Logger.newInstance();
 
     public Controller(JTextArea t){
         this.taskStack = new Stack<>();
@@ -70,7 +72,7 @@ public class Controller {
                         }
                     }
                 }catch (Exception e){
-                    e.printStackTrace();
+                    logger.error(e);
                 }finally {
                     lock.unlock();
                 }

@@ -1,7 +1,9 @@
 package com.huihuang.queryfile.handler;
 
 import com.huihuang.queryfile.Utils.FileUtils;
+import com.huihuang.queryfile.controller.Controller;
 import com.huihuang.queryfile.information.Information;
+import com.huihuang.queryfile.logs.Logger;
 import com.huihuang.queryfile.thread.QueryFileTask;
 
 import java.io.File;
@@ -30,7 +32,6 @@ public class QueryFileProcessor {
 	private static final int MAX_NUMBER = 1000;
 	private static final ExecutorService executors =  Executors.newScheduledThreadPool(20);
 	private Controller controller;
-	private static final ExecutorService executors =  Executors.newScheduledThreadPool(10);
 	private static final Stack<String> NEW_PATH_STACK = new Stack<>();
 	private static final Logger logger = Logger.newInstance();
 
@@ -51,7 +52,7 @@ public class QueryFileProcessor {
 		if (!file.isFile()) {
 			File[] files = file.listFiles();
 			int length = files.length;
-			multithreadingParse(result,files,countDownLatch,endFileName,content,length);
+			multithreadingParse(controller, result,files,countDownLatch,endFileName,content,length);
 		}else {
 			if (FileUtils.fileParse(file, endFileName).contains(content)) {
 				result.add(file.getName());
@@ -74,40 +75,36 @@ public class QueryFileProcessor {
 			try {
 				jarWholePath = java.net.URLDecoder.decode(jarWholePath, Charset.defaultCharset().name());
 			} catch (UnsupportedEncodingException e) {
-				System.out.println(e.toString());
+				logger.error(e);
 			}
 			path = new File(jarWholePath).getParentFile().getAbsolutePath();
 		}
 		return path;
 	}
 
-    /**
-     * 多线程解析方法
-     * @param result
-     * @param files
-     * @param countDownLatch
-     * @param endFileName
-     * @param content
-     * @param length
-     */
-	private void multithreadingParse(List<String> result,File[] files,CountDownLatch countDownLatch,String endFileName,String content,int length){
-        int n = length / MAX_NUMBER + 1;
-        countDownLatch = new CountDownLatch(n);
-        for (int i = 0;i < n; i++){
-            int startIndex = i * MAX_NUMBER;
-            int endIndex = i == n -1? length : (i + 1) * MAX_NUMBER;
-			Information information = new Information(NEW_PATH_STACK, files, countDownLatch, startIndex, endIndex, endFileName, content);
-            Runnable task = new QueryFileTask(result, information);
-            executors.submit(task);
-        }
-        try{
-            countDownLatch.await();
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        if (!NEW_PATH_STACK.empty()){
-        	String newPath = NEW_PATH_STACK.pop();
-        	queryFile(newPath, endFileName, content);
+	/**
+	 * 多线程解析方法
+	 * @param result
+	 * @param files
+	 * @param countDownLatch
+	 * @param endFileName
+	 * @param content
+	 * @param length
+	 */
+	private void multithreadingParse(Controller controller,List<String> result,File[] files,CountDownLatch countDownLatch,String endFileName,String content,int length){
+		int n = length / MAX_NUMBER + 1;
+		countDownLatch = new CountDownLatch(n);
+		for (int i = 0;i < n; i++){
+			int startIndex = i * MAX_NUMBER;
+			int endIndex = i == n -1? length : (i + 1) * MAX_NUMBER;
+			Information information = new Information(controller, files, countDownLatch, startIndex, endIndex, endFileName, content);
+			Runnable task = new QueryFileTask(result, information);
+			executors.submit(task);
 		}
-    }
+		try{
+			countDownLatch.await();
+		}catch (Exception e){
+			logger.error(e);
+		}
+	}
 }

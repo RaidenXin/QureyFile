@@ -7,6 +7,8 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 
+import com.huihuang.queryfile.handler.QueryFileProcessor;
+import com.huihuang.queryfile.logs.Logger;
 import org.apache.poi.POIXMLDocument;
 import org.apache.poi.POIXMLTextExtractor;
 import org.apache.poi.hwpf.extractor.WordExtractor;
@@ -30,6 +32,8 @@ public class FileUtils {
 
     private static final String GBK = "gbk";
     private static final String UTF8 = "utf-8";
+
+    private static final Logger logger = Logger.newInstance();
     /**
      * *解析文件返回文件内容字符串
      * @param file
@@ -69,7 +73,7 @@ public class FileUtils {
                     buffer.clear();
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error(e);
             }
         }
         return stringBuffer.toString();
@@ -97,7 +101,7 @@ public class FileUtils {
                     }
                 }
             }catch (Exception e){
-                e.printStackTrace();
+                logger.error(e);
             }
         }
         return builder.toString();
@@ -141,7 +145,7 @@ public class FileUtils {
                     builder.append(extractor.getText());
                 }
             }catch (Exception e){
-                e.printStackTrace();
+               logger.error(e);
             }
         }
         return builder.toString();
