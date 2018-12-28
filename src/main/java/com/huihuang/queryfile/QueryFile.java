@@ -4,7 +4,7 @@ import com.huihuang.queryfile.viwe.SwingConsole;
 import com.huihuang.queryfile.viwe.TextArea;
 
 /**
- * *主函数入口
+ * *主函数入口，启动类
  * @author Raiden
  *
  */

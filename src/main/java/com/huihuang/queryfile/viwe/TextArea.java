@@ -30,6 +30,7 @@ public class TextArea extends JFrame{
 	private static final String END = "!";
 
 	private JButton b1 = new JButton("Query");
+	private JButton b2 = new JButton("Obtain");
 	private JTextArea t = new JTextArea(20,40);
 	private JTextArea pathText = new JTextArea(1,38);
 	private JTextArea endFileNameText = new JTextArea(1,38);
@@ -49,12 +50,19 @@ public class TextArea extends JFrame{
 				controller.add(pathText.getText(), endFileNameText.getText(), contentText.getText());
 			}
 		});
+		b2.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				controller.obtainFiles(pathText.getText(), contentText.getText());
+			}
+		});
 		setLayout(new FlowLayout());
 		add(new JScrollPane(t));
 		add(new JScrollPane(pathText));
 		add(new JScrollPane(endFileNameText));
 		add(new JScrollPane(contentText));
 		add(b1);
+		add(b2);
 		handler.start();
 	}
 }

@@ -34,6 +34,13 @@ public class FileUtils {
     private static final String UTF8 = "utf-8";
 
     private static final Logger logger = Logger.newInstance();
+
+
+    /**
+     * 工具类最好不要有构造方法
+     */
+    private FileUtils(){}
+
     /**
      * *解析文件返回文件内容字符串
      * @param file
