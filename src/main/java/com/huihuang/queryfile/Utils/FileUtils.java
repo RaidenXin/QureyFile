@@ -1,7 +1,5 @@
 package com.huihuang.queryfile.Utils;
 
-import com.huihuang.queryfile.handler.QueryFileProcessor;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -9,6 +7,8 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 
+import com.huihuang.queryfile.handler.QueryFileProcessor;
+import com.huihuang.queryfile.logs.Logger;
 import org.apache.poi.POIXMLDocument;
 import org.apache.poi.POIXMLTextExtractor;
 import org.apache.poi.hwpf.extractor.WordExtractor;
@@ -28,6 +28,18 @@ public class FileUtils {
     private static final String XML = ".xml";
     private static final String WORD2003 = "doc";
     private static final String WORD2007 = "docx";
+
+
+    private static final String GBK = "gbk";
+    private static final String UTF8 = "utf-8";
+
+    private static final Logger logger = Logger.newInstance();
+
+
+    /**
+     * 工具类最好不要有构造方法
+     */
+    private FileUtils(){}
 
     /**
      * *解析文件返回文件内容字符串
@@ -61,14 +73,14 @@ public class FileUtils {
         StringBuffer stringBuffer = new StringBuffer(QueryFileProcessor.ENPTY_STR);
         if (file.isFile() && fileName.endsWith(endFileName)) {
             try (FileChannel fileChannel = new FileInputStream(file).getChannel()) {
-                Charset encoded = Charset.defaultCharset();
+                Charset encoded = Charset.forName(GBK);
                 while (fileChannel.read(buffer) != -1) {
                     buffer.flip();
                     stringBuffer.append(encoded.decode(buffer));
                     buffer.clear();
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error(e);
             }
         }
         return stringBuffer.toString();
@@ -96,7 +108,7 @@ public class FileUtils {
                     }
                 }
             }catch (Exception e){
-                e.printStackTrace();
+                logger.error(e);
             }
         }
         return builder.toString();
@@ -140,7 +152,7 @@ public class FileUtils {
                     builder.append(extractor.getText());
                 }
             }catch (Exception e){
-                e.printStackTrace();
+               logger.error(e);
             }
         }
         return builder.toString();

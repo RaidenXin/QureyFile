@@ -13,19 +13,24 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * 主控制器类，包含一个任务信息队列。在搜索文件中如果遇到有文件夹的类型，则添加到这个队列中。
+ * 控制器
  */
 public class Controller {
 
     private static final String PATH_TEXT = "请填写文件所在路径";
     private static final String END_FILE_NAME_TEXT = "请填写文件后缀";
     private static final String CONTENT_TEXT = "请填写要查询内容";
+    private static final String NON_EXISTENT = "搜索的文件中不存在该元素！";
+    private static final String SEPARATIVE_SIGN = "\\";
+    private static final String NEW_LINE = "\n";
 
     private Stack<TaskInformation> taskStack;
     private Lock lock;
     private Condition condition;
     private QueryFileProcessor processor;
     private JTextArea t;
+    private Logger logger = Logger.newInstance();
+    private static final Map<String,List<File>> QUERIED_COLLECTION_OF_FILES = new HashMap<>();
 
     public Controller(JTextArea t){
         this.taskStack = new Stack<>();
@@ -36,7 +41,7 @@ public class Controller {
     }
 
     /**
-     * 带唤醒主线程的添加任务
+     * 添加任务并且唤醒主线程
      * @param path
      * @param endFileName
      * @param content
@@ -62,7 +67,7 @@ public class Controller {
     }
 
     /**
-     * 启动主线程，把任务信息队列中的任务信息一个一个取出，并执行搜索
+     * 启动一个主线程，查看任务列表，如果有任务就执行，没有就休眠
      */
     public void start(){
         Runnable task = new Runnable() {
@@ -81,14 +86,21 @@ public class Controller {
                         }
                         List<String> fileNames = getFileNames(path, information.getEndFileName(), information.getContent());
                         for (String fileName : fileNames) {
-                             if (QueryFileProcessor.Non_existent.equals(fileName) && StringUtils.isNonBlank(t.getText())){
-                                 fileName = StringUtils.EMPTY;
-                            }
-                            t.append(fileName + "\n");
+                             if (NON_EXISTENT.equals(fileName)){
+                                 if (StringUtils.isBlank(t.getText())){
+                                     t.append(fileName);
+                                 }
+                             }else {
+                                 if (NON_EXISTENT.equals(t.getText())){
+                                     t.setText(fileName + NEW_LINE);
+                                 }else {
+                                     t.append(fileName + NEW_LINE);
+                                 }
+                             }
                         }
                     }
                 }catch (Exception e){
-                    e.printStackTrace();
+                    logger.error(e);
                 }finally {
                     lock.unlock();
                 }
@@ -99,13 +111,13 @@ public class Controller {
     }
 
     /**
-     * 获取包含查询内容的文件名称
+     * 取得找到的文件名称
      * @param path
      * @param fileType
      * @param content
      * @return
      */
-    private List<String> getFileNames(String path,String fileType,String content){
+    private List<String> getFileNames(String path, String fileType, String content){
         if (END_FILE_NAME_TEXT.equals(fileType) && CONTENT_TEXT.equals(content)) {
             return Collections.emptyList();
         }
@@ -115,6 +127,41 @@ public class Controller {
         if (fileType.indexOf(".") == -1){
             fileType = "." + fileType;
         }
-        return processor.queryFile(path, fileType, content);
+        List<String> fileNames = new ArrayList<>();
+        List<File> fileList = processor.queryFile(path, fileType, content);
+        if (fileList.isEmpty()){
+            fileNames.add(NON_EXISTENT);
+        }else {
+            QUERIED_COLLECTION_OF_FILES.put(content, fileList);
+            fileList.stream().forEach(x -> fileNames.add(x.getName()));
+        }
+        return fileNames;
+    }
+
+    public void obtainFiles(String path, String content){
+        List<File> fileList = QUERIED_COLLECTION_OF_FILES.remove(content);
+        File file = new File(path);
+        if (null != fileList && !file.isFile()){
+            String savePath = path + SEPARATIVE_SIGN + content + SEPARATIVE_SIGN;
+            for (File f : fileList) {
+                obtainFiles(savePath, f);
+            }
+        }
+    }
+
+    private void obtainFiles(String savePath, File file){
+        File newFile = new File(savePath);
+        if (!newFile.exists()){
+            newFile.mkdir();
+        }
+        if (file.exists()){
+            if(file.renameTo(new File(savePath + file.getName()))) {
+                logger.info("重命名成功！");
+            }else {
+                logger.error("重命名失败！新文件名已存在");
+            }
+        }else {
+            logger.error("重命名文件不存在！");
+        }
     }
 }
