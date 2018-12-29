@@ -38,6 +38,7 @@ public class QueryFileProcessor {
 	public QueryFileProcessor(Controller controller){
 		this.controller = controller;
 	}
+
 	/**
 	 * *查询文件的方法,如果是文件则直接访问其内容,如果不是则遍历其子目录
 	 * @param path

@@ -11,8 +11,13 @@ import com.huihuang.queryfile.handler.QueryFileProcessor;
 import com.huihuang.queryfile.logs.Logger;
 import org.apache.poi.POIXMLDocument;
 import org.apache.poi.POIXMLTextExtractor;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hwpf.extractor.WordExtractor;
 import org.apache.poi.openxml4j.opc.OPCPackage;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -96,14 +101,19 @@ public class FileUtils {
         StringBuilder builder = new StringBuilder(StringUtils.EMPTY);
         if (file.isFile() && file.getName().endsWith(endFileName)) {
             try (InputStream is = new FileInputStream(file)) {
-                XSSFWorkbook xssfWorkbook = new XSSFWorkbook(is);
-                for (int numSheet = 0,n = xssfWorkbook.getNumberOfSheets(); numSheet < n; numSheet++) {
-                    XSSFSheet xssfSheet = xssfWorkbook.getSheetAt(numSheet);
-                    if (null == xssfSheet){
+                Workbook workbook;
+                if (endFileName.equals(EXCEL2003)){
+                    workbook = new HSSFWorkbook(is);
+                }else {
+                    workbook = new XSSFWorkbook(is);
+                }
+                for (int numSheet = 0,n = workbook.getNumberOfSheets(); numSheet < n; numSheet++) {
+                    Sheet sheet = workbook.getSheetAt(numSheet);
+                    if (null == sheet){
                         continue;
                     }
-                    for (int j = 0, x = xssfSheet.getLastRowNum() + 1; j < x;j++){
-                        XSSFRow row = xssfSheet.getRow(j);
+                    for (int j = 0, x = sheet.getLastRowNum() + 1; j < x;j++){
+                        Row row = sheet.getRow(j);
                         builder.append(getValue(row));
                     }
                 }
@@ -119,13 +129,13 @@ public class FileUtils {
      * @param row
      * @return
      */
-    private static String getValue(XSSFRow row) {
+    private static String getValue(Row row) {
         StringBuilder builder = new StringBuilder(StringUtils.EMPTY);
         if (null != row){
             for (int i = 0,n = row.getLastCellNum(); i < n; i++){
-                XSSFCell xssfCell = row.getCell(i);
-                xssfCell.setCellType(XSSFCell.CELL_TYPE_STRING);
-                builder.append(String.valueOf(xssfCell.getStringCellValue()));
+                Cell cell = row.getCell(i);
+                cell.setCellType(XSSFCell.CELL_TYPE_STRING);
+                builder.append(String.valueOf(cell.getStringCellValue()));
                 builder.append(";");
             }
         }
