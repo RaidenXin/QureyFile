@@ -40,13 +40,13 @@ public class LogHandler {
                         FileWriter errorWriter = new FileWriter(errorLogs,true)){
                             if (!stack.logsIsEmpty()){
                                 String log = stack.pop();
-                                if (StringUtils.isNonBlank(log)){
+                                if (StringUtils.isNotBlank(log)){
                                     writer.write(log);
                                 }
                             }
                             if (!stack.errorLogsIsEmpty()){
                                 String log = stack.errorPop();
-                                if (StringUtils.isNonBlank(log)){
+                                if (StringUtils.isNotBlank(log)){
                                     errorWriter.write(log);
                                 }
                             }

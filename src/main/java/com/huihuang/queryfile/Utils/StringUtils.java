@@ -16,7 +16,7 @@ public class StringUtils {
         return false;
     }
 
-    public static boolean isNonBlank(String value){
+    public static boolean isNotBlank(String value){
         return !isBlank(value);
     }
 }
