@@ -39,7 +39,7 @@ public class LogHandler {
                         try(FileWriter writer = new FileWriter(logs,true);
                         FileWriter errorWriter = new FileWriter(errorLogs,true)){
                             if (!stack.logsIsEmpty()){
-                                String log = stack.pop();
+                                String log = stack.poll();
                                 if (StringUtils.isNotBlank(log)){
                                     writer.write(log);
                                 }
@@ -51,7 +51,7 @@ public class LogHandler {
                                 }
                             }
                         }catch (Exception e){
-                            stack.errorPush(e.getMessage());
+                            stack.errorAdd(e.getMessage());
                         }
                 }
             }

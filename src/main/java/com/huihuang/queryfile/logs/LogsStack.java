@@ -1,15 +1,16 @@
 package com.huihuang.queryfile.logs;
 
-import java.util.EmptyStackException;
+import java.util.Queue;
 import java.util.Stack;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class LogsStack {
 
-    private static final Stack<String> stack = new Stack<>();
-    private static final Stack<String> error_stack = new Stack<>();
+    private static final Queue<String> queue = new ConcurrentLinkedQueue<>();
+    private static final Queue<String> error_queue = new ConcurrentLinkedQueue<>();
     private static final Lock lock = new ReentrantLock();
     private static final Condition condition = lock.newCondition();
     private static final LogsStack instance = new LogsStack();
@@ -22,44 +23,44 @@ public class LogsStack {
     }
 
     public void push(String log){
-        push(log, stack);
+        push(log, queue);
     }
 
-    private void push(String log,Stack stack){
+    private void push(String log,Queue stack){
         lock.lock();
         try{
             log = log + "\r\n";
-            stack.push(log);
+            stack.add(log);
             condition.signal();
         }catch (Exception e){
-            stack.push(e.getMessage());
+            stack.add(e.getMessage());
             throw new RuntimeException(e.getMessage());
         }finally {
             lock.unlock();
         }
     }
 
-    public String pop(){
+    public String poll(){
         String result = null;
         try{
-            result = stack.pop();
+            result = queue.poll();
         }catch (Exception e){
-            stack.push(e.getMessage());
+            queue.add(e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
         return result;
     }
 
-    public void errorPush(String log){
-        push(log, error_stack);
+    public void errorAdd(String log){
+        push(log, error_queue);
     }
 
     public String errorPop(){
         String result = null;
         try{
-            result = error_stack.pop();
+            result = error_queue.poll();
         }catch (Exception e){
-            error_stack.push(e.getMessage());
+            error_queue.add(e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
         return result;
@@ -67,22 +68,22 @@ public class LogsStack {
 
     public boolean logsIsEmpty(){
         isAwait();
-        return stack.isEmpty();
+        return queue.isEmpty();
     }
 
     public boolean errorLogsIsEmpty(){
         isAwait();
-        return error_stack.isEmpty();
+        return error_queue.isEmpty();
     }
 
     private void isAwait(){
         lock.lock();
         try{
-            if (stack.isEmpty() && error_stack.isEmpty()){
+            if (queue.isEmpty() && error_queue.isEmpty()){
                 condition.await();
             }
         }catch (Exception e){
-            error_stack.push(e.getMessage());
+            error_queue.add(e.getMessage());
         }finally {
             lock.unlock();
         }

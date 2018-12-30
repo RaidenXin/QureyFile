@@ -1,7 +1,6 @@
 package com.huihuang.queryfile.logs;
 
 import com.huihuang.queryfile.Utils.StringUtils;
-import org.apache.poi.util.StringUtil;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -32,7 +31,7 @@ public final class Logger {
     }
 
     public void error(String errorStr){
-        stack.errorPush(errorStr);
+        stack.errorAdd(errorStr);
     }
 
     public void error(Exception e){
@@ -63,6 +62,6 @@ public final class Logger {
             builder.append(stackTraceElement.getLineNumber());
             builder.append("\r\n");
         }
-        stack.errorPush(builder.toString());
+        stack.errorAdd(builder.toString());
     }
 }
