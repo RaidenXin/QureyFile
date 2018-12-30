@@ -1,7 +1,6 @@
 package com.huihuang.queryfile.logs;
 
 import java.util.Queue;
-import java.util.Stack;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
