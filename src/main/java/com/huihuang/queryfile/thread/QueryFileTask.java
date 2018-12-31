@@ -68,5 +68,4 @@ public class QueryFileTask implements Runnable {
         }
         return isContains;
     }
-
 }
