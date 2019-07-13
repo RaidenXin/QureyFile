@@ -82,7 +82,7 @@ public class Controller {
                         TaskInformation information = taskStack.pop();
                         String path = information.getPath();
                         if (null == path){
-                            condition.await();
+                            continue;
                         }
                         List<String> fileNames = getFileNames(path, information.getEndFileName(), information.getContent());
                         for (String fileName : fileNames) {

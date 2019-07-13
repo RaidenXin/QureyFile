@@ -29,6 +29,7 @@ public class LogHandler {
             @Override
             public void run() {
                 System.err.println("日志线程已经启动！");
+                System.err.println(savePath + saveFolderName);
                 File file = new File(savePath + saveFolderName);
                 if (!file.exists()) {
                     file.mkdir();
