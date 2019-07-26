@@ -6,18 +6,18 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class LogsStack {
+public class LogsQueue {
 
     private static final Queue<String> queue = new ConcurrentLinkedQueue<>();
     private static final Queue<String> error_queue = new ConcurrentLinkedQueue<>();
     private static final Lock lock = new ReentrantLock();
     private static final Condition condition = lock.newCondition();
-    private static final LogsStack instance = new LogsStack();
+    private static final LogsQueue instance = new LogsQueue();
 
-    private LogsStack(){
+    private LogsQueue(){
     }
 
-    public static final LogsStack newInstance(){
+    public static final LogsQueue newInstance(){
         return instance;
     }
 

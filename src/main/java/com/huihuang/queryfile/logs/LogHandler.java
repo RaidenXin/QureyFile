@@ -13,7 +13,7 @@ public class LogHandler {
     private static final String saveFolderName = "\\logs\\";
     private static final String Log_File_Name = "Main.log";
     private static final String Error_Log_File_Name = "ErrorMain.log";
-    private static final LogsStack stack = LogsStack.newInstance();
+    private static final LogsQueue stack = LogsQueue.newInstance();
     private static String savePath = LogHandler.class.getProtectionDomain().getCodeSource().getLocation().getFile();
     private static final LogHandler logHandler = new LogHandler();
 

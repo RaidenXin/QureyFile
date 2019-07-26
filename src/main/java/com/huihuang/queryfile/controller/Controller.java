@@ -8,6 +8,7 @@ import com.huihuang.queryfile.logs.Logger;
 import javax.swing.*;
 import java.io.File;
 import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -24,7 +25,7 @@ public class Controller {
     private static final String SEPARATIVE_SIGN = "\\";
     private static final String NEW_LINE = "\n";
 
-    private Stack<TaskInformation> taskStack;
+    private Queue<TaskInformation> taskStack;
     private Lock lock;
     private Condition condition;
     private QueryFileProcessor processor;
@@ -33,7 +34,7 @@ public class Controller {
     private static final Map<String,List<File>> QUERIED_COLLECTION_OF_FILES = new HashMap<>();
 
     public Controller(JTextArea t){
-        this.taskStack = new Stack<>();
+        this.taskStack = new ConcurrentLinkedQueue<>();
         this.lock = new ReentrantLock();
         this.condition = lock.newCondition();
         this.processor = new QueryFileProcessor(this);
@@ -47,7 +48,7 @@ public class Controller {
      * @param content
      */
     public void add(String path,String endFileName,String content){
-        taskStack.push(new TaskInformation(path, endFileName, content));
+        taskStack.add(new TaskInformation(path, endFileName, content));
         lock.lock();
         try {
             condition.signal();
@@ -63,7 +64,7 @@ public class Controller {
      * @param content
      */
     public void push(String path,String endFileName,String content){
-        taskStack.push(new TaskInformation(path, endFileName, content));
+        taskStack.add(new TaskInformation(path, endFileName, content));
     }
 
     /**
@@ -79,7 +80,7 @@ public class Controller {
                         if (taskStack.isEmpty()){
                             condition.await();
                         }
-                        TaskInformation information = taskStack.pop();
+                        TaskInformation information = taskStack.poll();
                         String path = information.getPath();
                         if (null == path){
                             continue;

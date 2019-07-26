@@ -11,7 +11,7 @@ import java.util.Date;
 public final class Logger {
 
     private static final String pattern = "yyyy-MM-dd HH:mm:ss";
-    private static final LogsStack stack = LogsStack.newInstance();
+    private static final LogsQueue stack = LogsQueue.newInstance();
     private static final Logger logger = new Logger();
 
     private Logger(){

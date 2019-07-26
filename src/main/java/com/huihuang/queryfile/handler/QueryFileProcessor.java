@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -26,10 +27,8 @@ public class QueryFileProcessor {
 	private static final int MAX_NUMBER = 1000;
 
 	public static final String ENPTY_STR = "";
-	private static final String SAVE_PATH = "filesfound";
 
 	private static final ExecutorService EXECUTORS =  Executors.newScheduledThreadPool(20);
-	private static final Stack<String> NEW_PATH_STACK = new Stack<>();
 	private static final Logger LOGGER = Logger.newInstance();
 
 
