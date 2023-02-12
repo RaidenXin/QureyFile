@@ -1,6 +1,6 @@
 package com.huihuang.queryfile.logs;
 
-import com.huihuang.queryfile.Utils.StringUtils;
+import com.huihuang.queryfile.utils.StringUtils;
 
 import java.io.File;
 import java.io.FileWriter;

@@ -1,14 +1,11 @@
 package com.huihuang.queryfile.thread;
 
-import com.huihuang.queryfile.Utils.FileUtils;
+import com.huihuang.queryfile.utils.FileUtils;
 import com.huihuang.queryfile.controller.Controller;
 import com.huihuang.queryfile.information.Information;
-import com.huihuang.queryfile.information.TaskInformation;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Stack;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -41,7 +38,6 @@ public class QueryFileTask implements Runnable {
         for (int i = startIndex; i < endIndex; i++){
             File file = files[i];
             if (FileUtils.fileParse(file, endFileName).contains(content)) {
-                String fileName = file.getName();
                 synchronized (fileList){
                     if (!contains(fileList, file)){
                         fileList.add(file);

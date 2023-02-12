@@ -1,6 +1,6 @@
 package com.huihuang.queryfile.handler;
 
-import com.huihuang.queryfile.Utils.FileUtils;
+import com.huihuang.queryfile.utils.FileUtils;
 import com.huihuang.queryfile.controller.Controller;
 import com.huihuang.queryfile.information.Information;
 import com.huihuang.queryfile.logs.Logger;
@@ -10,7 +10,6 @@ import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.*;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -48,14 +47,14 @@ public class QueryFileProcessor {
 	public List<File> queryFile(String path,String endFileName,String content) {
 		List<File> result = new ArrayList<>();
 		File file = new File(getLocalPath(path));
-		if (!file.isFile()) {
-			File[] files = file.listFiles();
-			int length = files.length;
-			multithreadingParse(controller, result, files, endFileName, content, length);
-		}else {
-			if (FileUtils.fileParse(file, endFileName).contains(content)) {
-				result.add(file);
-			}
+		if (file.isFile()) {
+            if (FileUtils.fileParse(file, endFileName).contains(content)) {
+                result.add(file);
+            }
+        }else {
+            File[] files = file.listFiles();
+            int length = files.length;
+            multithreadingParse(controller, result, files, endFileName, content, length);
 		}
 		return result;
 	}

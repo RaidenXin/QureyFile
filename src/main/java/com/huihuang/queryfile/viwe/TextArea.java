@@ -1,9 +1,8 @@
 package com.huihuang.queryfile.viwe;
 
 import com.huihuang.queryfile.controller.Controller;
-import com.huihuang.queryfile.Utils.StringUtils;
+import com.huihuang.queryfile.utils.StringUtils;
 import com.huihuang.queryfile.logs.LogHandler;
-import sun.rmi.runtime.Log;
 
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -17,7 +16,7 @@ import javax.swing.JTextArea;
 public class TextArea extends JFrame{
 
 	/**
-	 *
+	 * 序列化号
 	 */
 	private static final long serialVersionUID = 2568996309431093667L;
 
@@ -26,8 +25,14 @@ public class TextArea extends JFrame{
 	private static final String CONTENT_TEXT = "请填写要查询内容";
 	private static final String END = "!";
 
-	private JButton b1 = new JButton("Query");
-	private JButton b2 = new JButton("Obtain");
+    /**
+     * 查询按钮
+     */
+	private JButton query = new JButton("Query");
+    /**
+     *
+     */
+	private JButton obtain = new JButton("Obtain");
 	private JTextArea t = new JTextArea(20,40);
 	private JTextArea pathText = new JTextArea(1,38);
 	private JTextArea endFileNameText = new JTextArea(1,38);
@@ -40,14 +45,14 @@ public class TextArea extends JFrame{
 		pathText.setText(PATH_TEXT + END);
 		endFileNameText.setText(END_FILE_NAME_TEXT + END);
 		contentText.setText(CONTENT_TEXT + END);
-		b1.addActionListener(new ActionListener() {
+		query.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				t.setText(StringUtils.EMPTY);
 				controller.add(pathText.getText(), endFileNameText.getText(), contentText.getText());
 			}
 		});
-		b2.addActionListener(new ActionListener() {
+		obtain.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				controller.obtainFiles(pathText.getText(), contentText.getText());
@@ -58,8 +63,8 @@ public class TextArea extends JFrame{
 		add(new JScrollPane(pathText));
 		add(new JScrollPane(endFileNameText));
 		add(new JScrollPane(contentText));
-		add(b1);
-		add(b2);
+		add(query);
+		add(obtain);
 		handler.start();
 	}
 }

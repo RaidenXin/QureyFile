@@ -1,12 +1,15 @@
 package com.huihuang.queryfile.controller;
 
-import com.huihuang.queryfile.Utils.StringUtils;
+import com.huihuang.queryfile.utils.AlertUtil;
+import com.huihuang.queryfile.utils.StringUtils;
 import com.huihuang.queryfile.handler.QueryFileProcessor;
 import com.huihuang.queryfile.information.TaskInformation;
 import com.huihuang.queryfile.logs.Logger;
 
 import javax.swing.*;
 import java.io.File;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.Condition;
@@ -29,16 +32,16 @@ public class Controller {
     private Lock lock;
     private Condition condition;
     private QueryFileProcessor processor;
-    private JTextArea t;
+    private JTextArea text;
     private Logger logger = Logger.newInstance();
     private static final Map<String,List<File>> QUERIED_COLLECTION_OF_FILES = new HashMap<>();
 
-    public Controller(JTextArea t){
+    public Controller(JTextArea text){
         this.taskStack = new ConcurrentLinkedQueue<>();
         this.lock = new ReentrantLock();
         this.condition = lock.newCondition();
         this.processor = new QueryFileProcessor(this);
-        this.t = t;
+        this.text = text;
     }
 
     /**
@@ -71,40 +74,37 @@ public class Controller {
      * 启动一个主线程，查看任务列表，如果有任务就执行，没有就休眠
      */
     public void start(){
-        Runnable task = new Runnable() {
-            @Override
-            public void run() {
-                lock.lock();
-                try{
-                    while (true){
-                        if (taskStack.isEmpty()){
-                            condition.await();
-                        }
-                        TaskInformation information = taskStack.poll();
-                        String path = information.getPath();
-                        if (null == path){
-                            continue;
-                        }
-                        List<String> fileNames = getFileNames(path, information.getEndFileName(), information.getContent());
-                        for (String fileName : fileNames) {
-                             if (NON_EXISTENT.equals(fileName)){
-                                 if (StringUtils.isBlank(t.getText())){
-                                     t.append(fileName);
-                                 }
-                             }else {
-                                 if (NON_EXISTENT.equals(t.getText())){
-                                     t.setText(fileName + NEW_LINE);
-                                 }else {
-                                     t.append(fileName + NEW_LINE);
-                                 }
-                             }
+        Runnable task = () -> {
+            lock.lock();
+            try{
+                while (true){
+                    if (taskStack.isEmpty()){
+                        condition.await();
+                    }
+                    TaskInformation information = taskStack.poll();
+                    String path = information.getPath();
+                    if (null == path){
+                        continue;
+                    }
+                    List<String> fileNames = getFileNames(path, information.getEndFileName(), information.getContent());
+                    for (String fileName : fileNames) {
+                        if (NON_EXISTENT.equals(fileName)){
+                            if (StringUtils.isBlank(text.getText())){
+                                text.append(fileName);
+                            }
+                        }else {
+                            if (NON_EXISTENT.equals(text.getText())){
+                                text.setText(fileName + NEW_LINE);
+                            }else {
+                                text.append(fileName + NEW_LINE);
+                            }
                         }
                     }
-                }catch (Exception e){
-                    logger.error(e);
-                }finally {
-                    lock.unlock();
                 }
+            }catch (Exception e){
+                logger.error(e);
+            }finally {
+                lock.unlock();
             }
         };
         Thread thread = new Thread(task);
@@ -142,7 +142,14 @@ public class Controller {
     public void obtainFiles(String path, String content){
         List<File> fileList = QUERIED_COLLECTION_OF_FILES.remove(content);
         File file = new File(path);
-        if (null != fileList && !file.isFile()){
+        if (Objects.nonNull(fileList) && !file.isFile()){
+            //判断如果 新的文件名或者路径中 存在中文
+            if (StringUtils.isContainChinese(content)) {
+                try {
+                    content = URLEncoder.encode(content, "utf-8");
+                } catch (UnsupportedEncodingException e) {
+                }
+            }
             String savePath = path + SEPARATIVE_SIGN + content + SEPARATIVE_SIGN;
             for (File f : fileList) {
                 obtainFiles(savePath, f);
@@ -157,8 +164,10 @@ public class Controller {
         }
         if (file.exists()){
             if(file.renameTo(new File(savePath + file.getName()))) {
+                AlertUtil.info("文件收集成功！已经放置到目录：" + savePath);
                 logger.info("重命名成功！");
             }else {
+                AlertUtil.error("文件收集失败！", new Exception());
                 logger.error("重命名失败！新文件名已存在");
             }
         }else {
