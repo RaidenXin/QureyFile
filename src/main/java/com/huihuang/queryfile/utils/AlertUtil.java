@@ -15,7 +15,7 @@ public final class AlertUtil {
     }
 
     public static void error(String errorMessage, Throwable e){
-        String error = errorMessage + e.getMessage();
+        String error = errorMessage + (StringUtils.isBlank(e.getMessage()) ? StringUtils.EMPTY : e.getMessage());
         JOptionPane.showMessageDialog(null, error, "异常", JOptionPane. ERROR_MESSAGE);
     }
 

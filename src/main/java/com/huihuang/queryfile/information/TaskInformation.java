@@ -1,5 +1,7 @@
 package com.huihuang.queryfile.information;
 
+import com.huihuang.queryfile.utils.StringUtils;
+
 /**
  * 任务信息类
  */

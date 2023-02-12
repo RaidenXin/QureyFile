@@ -13,10 +13,12 @@ import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
 /**
  * 控制器
@@ -36,7 +38,7 @@ public class Controller {
     private QueryFileProcessor processor;
     private JTextArea text;
     private Logger logger = Logger.newInstance();
-    private static final Map<String,List<File>> QUERIED_COLLECTION_OF_FILES = new HashMap<>();
+    private static final Map<String,List<String>> QUERIED_COLLECTION_OF_FILES = new ConcurrentHashMap<>();
 
     public Controller(JTextArea text){
         this.taskStack = new ConcurrentLinkedQueue<>();
@@ -135,29 +137,50 @@ public class Controller {
         if (fileList.isEmpty()){
             fileNames.add(NON_EXISTENT);
         }else {
-            QUERIED_COLLECTION_OF_FILES.put(content, fileList);
+            QUERIED_COLLECTION_OF_FILES.put(content, fileList.stream().map(File::getPath).collect(Collectors.toList()));
             fileList.stream().forEach(x -> fileNames.add(x.getName()));
         }
         return fileNames;
     }
 
+    /**
+     * 收集文件
+     * @param path
+     * @param content
+     */
     public void obtainFiles(String path, String content){
-        List<File> fileList = QUERIED_COLLECTION_OF_FILES.remove(content);
+        List<String> fileList = QUERIED_COLLECTION_OF_FILES.remove(content);
         File file = new File(path);
         if (Objects.nonNull(fileList) && !file.isFile()){
             String savePath = path + SEPARATIVE_SIGN + content + SEPARATIVE_SIGN;
             try {
-                for (File f : fileList) {
-                    obtainFiles(savePath, f);
+                for (String f : fileList) {
+                    fileRename(savePath, new File(f));
                 }
                 AlertUtil.info("文件收集成功！已经放置到目录：" + savePath);
             } catch (Exception e) {
-
+                logger.error("文件收集失败！", e);
+                AlertUtil.error("文件收集失败！", e);
             }
+        } else {
+            if (StringUtils.isBlank(path)) {
+                AlertUtil.error("未找到可以收集的文件,路径不正确！", new Exception());
+                return;
+            }
+            if (StringUtils.isBlank(content)) {
+                AlertUtil.error("未找到可以收集的文件,查找内容不正确！", new Exception());
+                return;
+            }
+            AlertUtil.error("未找到可以收集的文件,请先搜索文件！", new Exception());
         }
     }
 
-    private void obtainFiles(String savePath, File file){
+    /**
+     * 文件重命名
+     * @param savePath
+     * @param file
+     */
+    private void fileRename(String savePath, File file){
         File newFile = new File(savePath);
         if (!newFile.exists()){
             newFile.mkdir();

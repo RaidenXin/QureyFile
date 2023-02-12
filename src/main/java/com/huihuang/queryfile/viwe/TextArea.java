@@ -18,8 +18,6 @@ public class TextArea extends JFrame{
 	 */
 	private static final long serialVersionUID = 2568996309431093667L;
 
-	private static final String END = "!";
-
     /**
      * 查询按钮
      */
@@ -38,6 +36,8 @@ public class TextArea extends JFrame{
 	public TextArea() {
         pathText = new JTextArea(1,38);
         context = new JTextArea(20,45);
+        // 设置JTextArea字体和颜色。
+        context.setForeground(Color.blue);
         query = new JButton("搜索文件");
         obtain = new JButton("收集文件");
         contentText = new JTextArea(1,38);
@@ -49,7 +49,11 @@ public class TextArea extends JFrame{
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				context.setText(StringUtils.EMPTY);
-				controller.add(pathText.getText(), (FileType) endFileNameText.getSelectedItem(), contentText.getText());
+				final String content = contentText.getText();
+				if (StringUtils.isBlank(content)) {
+				    return;
+                }
+				controller.add(pathText.getText(), (FileType) endFileNameText.getSelectedItem(), content);
 			}
 		});
 		obtain.addActionListener(new ActionListener() {
