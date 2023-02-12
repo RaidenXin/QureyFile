@@ -158,6 +158,7 @@ public class Controller {
                     fileRename(savePath, new File(f));
                 }
                 AlertUtil.info("文件收集成功！已经放置到目录：" + savePath);
+                text.setText(StringUtils.EMPTY);
             } catch (Exception e) {
                 logger.error("文件收集失败！", e);
                 AlertUtil.error("文件收集失败！", e);
