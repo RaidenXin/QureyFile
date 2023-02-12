@@ -1,6 +1,7 @@
 package com.huihuang.queryfile.controller;
 
 import com.huihuang.queryfile.common.Constant;
+import com.huihuang.queryfile.common.FileType;
 import com.huihuang.queryfile.utils.AlertUtil;
 import com.huihuang.queryfile.utils.StringUtils;
 import com.huihuang.queryfile.handler.QueryFileProcessor;
@@ -48,11 +49,11 @@ public class Controller {
     /**
      * 添加任务并且唤醒主线程
      * @param path
-     * @param endFileName
+     * @param fileType
      * @param content
      */
-    public void add(String path,String endFileName,String content){
-        taskStack.add(new TaskInformation(path, endFileName, content));
+    public void add(String path, FileType fileType, String content){
+        taskStack.add(new TaskInformation(path, fileType.getSuffix(), content));
         lock.lock();
         try {
             condition.signal();

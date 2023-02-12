@@ -11,6 +11,6 @@ import com.huihuang.queryfile.viwe.TextArea;
 public class QueryFile {
 
 	public static void main(String[] args) {
-		SwingConsole.run(new TextArea(), 450, 600);
+		SwingConsole.run(new TextArea(), 520, 600);
 	}
 }
