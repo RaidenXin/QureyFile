@@ -33,10 +33,6 @@ public class FileUtils {
     private static final String WORD2003 = ".doc";
     private static final String WORD2007 = ".docx";
 
-
-    private static final String GBK = "gbk";
-    private static final String UTF8 = "utf-8";
-
     private static final Logger logger = Logger.newInstance();
 
 

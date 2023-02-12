@@ -1,5 +1,6 @@
 package com.huihuang.queryfile.controller;
 
+import com.huihuang.queryfile.common.Constant;
 import com.huihuang.queryfile.utils.AlertUtil;
 import com.huihuang.queryfile.utils.StringUtils;
 import com.huihuang.queryfile.handler.QueryFileProcessor;
@@ -125,8 +126,8 @@ public class Controller {
         if (PATH_TEXT.equals(path)) {
             path = null;
         }
-        if (fileType.indexOf(".") == -1){
-            fileType = "." + fileType;
+        if (fileType.indexOf(Constant.POINT) == -1){
+            fileType = Constant.POINT + fileType;
         }
         List<String> fileNames = new ArrayList<>();
         List<File> fileList = processor.queryFile(path, fileType, content);
@@ -143,13 +144,6 @@ public class Controller {
         List<File> fileList = QUERIED_COLLECTION_OF_FILES.remove(content);
         File file = new File(path);
         if (Objects.nonNull(fileList) && !file.isFile()){
-            //判断如果 新的文件名或者路径中 存在中文
-            if (StringUtils.isContainChinese(content)) {
-                try {
-                    content = URLEncoder.encode(content, "utf-8");
-                } catch (UnsupportedEncodingException e) {
-                }
-            }
             String savePath = path + SEPARATIVE_SIGN + content + SEPARATIVE_SIGN;
             for (File f : fileList) {
                 obtainFiles(savePath, f);

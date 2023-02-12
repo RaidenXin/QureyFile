@@ -1,6 +1,6 @@
 package com.huihuang.queryfile.utils;
 
-import javafx.scene.control.Alert;
+import javax.swing.*;
 
 /**
  * @创建人:Raiden
@@ -11,24 +11,20 @@ import javafx.scene.control.Alert;
 public final class AlertUtil {
 
     public static void info(String messge){
-        Alert alert = new Alert(Alert.AlertType.INFORMATION, messge);
-        alert.showAndWait();
+        JOptionPane.showMessageDialog(null, messge, "提示", JOptionPane.INFORMATION_MESSAGE);
     }
 
     public static void error(String errorMessage, Throwable e){
         String error = errorMessage + e.getMessage();
-        Alert alert = new Alert(Alert.AlertType.ERROR, error);
-        alert.showAndWait();
+        JOptionPane.showMessageDialog(null, error, "异常", JOptionPane. ERROR_MESSAGE);
     }
 
     public static void error(Throwable e){
         String error = e.getMessage();
-        Alert alert = new Alert(Alert.AlertType.ERROR, error);
-        alert.showAndWait();
+        JOptionPane.showMessageDialog(null, error, "异常", JOptionPane. ERROR_MESSAGE);
     }
 
     public static void warn(String warnMessage){
-        Alert alert = new Alert(Alert.AlertType.WARNING,  warnMessage);
-        alert.showAndWait();
+        JOptionPane.showMessageDialog(null, warnMessage, "警告", JOptionPane.INFORMATION_MESSAGE);
     }
 }
