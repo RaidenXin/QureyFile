@@ -146,8 +146,13 @@ public class Controller {
         File file = new File(path);
         if (Objects.nonNull(fileList) && !file.isFile()){
             String savePath = path + SEPARATIVE_SIGN + content + SEPARATIVE_SIGN;
-            for (File f : fileList) {
-                obtainFiles(savePath, f);
+            try {
+                for (File f : fileList) {
+                    obtainFiles(savePath, f);
+                }
+                AlertUtil.info("文件收集成功！已经放置到目录：" + savePath);
+            } catch (Exception e) {
+
             }
         }
     }
@@ -158,15 +163,15 @@ public class Controller {
             newFile.mkdir();
         }
         if (file.exists()){
+            final String newFilePath = savePath + file.getName();
             if(file.renameTo(new File(savePath + file.getName()))) {
-                AlertUtil.info("文件收集成功！已经放置到目录：" + savePath);
                 logger.info("重命名成功！");
             }else {
-                AlertUtil.error("文件收集失败！", new Exception());
-                logger.error("重命名失败！新文件名已存在");
+                AlertUtil.error("文件收集失败！Path:" + newFilePath, new Exception());
+                logger.error("文件收集失败！");
             }
         }else {
-            logger.error("重命名文件不存在！");
+            logger.error("文件不存在！文件Path:" + file.getPath());
         }
     }
 }

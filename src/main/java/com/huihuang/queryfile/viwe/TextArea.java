@@ -23,19 +23,27 @@ public class TextArea extends JFrame{
     /**
      * 查询按钮
      */
-	private JButton query = new JButton("搜索文件");
+	private JButton query;
     /**
      *
      */
-	private JButton obtain = new JButton("收集文件");
-	private JTextArea context = new JTextArea(20,45);
-	private JTextArea pathText = new JTextArea(1,38);
+	private JButton obtain;
+	private JTextArea context;
+	private JTextArea pathText;
 	private JComboBox<FileType> endFileNameText;
-	private JTextArea contentText = new JTextArea(1,38);
-	private Controller controller = new Controller(context);
-	private LogHandler handler = LogHandler.newInstance();
+	private JTextArea contentText;
+	private Controller controller;
+	private LogHandler handler ;
 
 	public TextArea() {
+        pathText = new JTextArea(1,38);
+        context = new JTextArea(20,45);
+        query = new JButton("搜索文件");
+        obtain = new JButton("收集文件");
+        contentText = new JTextArea(1,38);
+        contentText = new JTextArea(1,38);
+        controller = new Controller(context);
+        handler = LogHandler.newInstance();
 		controller.start();
 		query.addActionListener(new ActionListener() {
 			@Override
