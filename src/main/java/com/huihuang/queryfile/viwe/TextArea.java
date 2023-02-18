@@ -2,6 +2,7 @@ package com.huihuang.queryfile.viwe;
 
 import com.huihuang.queryfile.common.FileType;
 import com.huihuang.queryfile.controller.Controller;
+import com.huihuang.queryfile.utils.AlertUtil;
 import com.huihuang.queryfile.utils.StringUtils;
 import com.huihuang.queryfile.logs.LogHandler;
 
@@ -51,6 +52,10 @@ public class TextArea extends JFrame{
 				context.setText(StringUtils.EMPTY);
 				final String content = contentText.getText();
 				if (StringUtils.isBlank(content)) {
+				    return;
+                }
+				if (content.length() > 100) {
+                    AlertUtil.error("检索的文案不能超过100个字符", new Exception("检索的文案不能超过100个字符"));
 				    return;
                 }
 				controller.add(pathText.getText(), (FileType) endFileNameText.getSelectedItem(), content);
