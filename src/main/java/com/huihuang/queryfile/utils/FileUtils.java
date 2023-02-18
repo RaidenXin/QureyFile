@@ -8,6 +8,7 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.util.Objects;
 
+import com.huihuang.queryfile.common.FileType;
 import com.huihuang.queryfile.handler.QueryFileProcessor;
 import com.huihuang.queryfile.logs.Logger;
 import org.apache.poi.POIXMLDocument;
@@ -24,14 +25,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 
 public class FileUtils {
-
-    private static final String EXCEL2007 = ".xlsx";
-    private static final String EXCEL2003 = ".xls";
-    private static final String HTML = ".html";
-    private static final String TXT = ".txt";
-    private static final String XML = ".xml";
-    private static final String WORD2003 = ".doc";
-    private static final String WORD2007 = ".docx";
 
     private static final Logger logger = Logger.newInstance();
 
@@ -52,11 +45,11 @@ public class FileUtils {
     @SuppressWarnings("resource")
     public static String fileParse(File file, String endFileName) {
         if (file.isFile()) {
-            if (EXCEL2003.equals(endFileName) || EXCEL2007.equals(endFileName)) {
+            if (FileType.EXCEL2003.getSuffix().equals(endFileName) || FileType.EXCEL2007.getSuffix().equals(endFileName)) {
                 return parseExcel(file, endFileName);
-            } else if (HTML.equals(endFileName) || TXT.equals(endFileName) || XML.equals(endFileName)) {
+            } else if (FileType.HTML.getSuffix().equals(endFileName) || FileType.TXT.getSuffix().equals(endFileName) || FileType.XML.getSuffix().equals(endFileName)) {
                 return parseHtmlAndTxt(file, endFileName);
-            } else if (WORD2003.equals(endFileName) || WORD2007.equals(endFileName)) {
+            } else if (FileType.WORD2003.getSuffix().equals(endFileName) || FileType.WORD2007.getSuffix().equals(endFileName)) {
                 return parseWord(file);
             }
         }
@@ -101,7 +94,7 @@ public class FileUtils {
         if (file.isFile() && file.getName().endsWith(endFileName)) {
             try (InputStream is = new FileInputStream(file)) {
                 Workbook workbook;
-                if (endFileName.equals(EXCEL2003)) {
+                if (endFileName.equals(FileType.EXCEL2003.getSuffix())) {
                     workbook = new HSSFWorkbook(is);
                 } else {
                     workbook = new XSSFWorkbook(is);
@@ -152,14 +145,14 @@ public class FileUtils {
         StringBuilder builder = new StringBuilder(StringUtils.EMPTY);
         if (file.isFile()) {
             String fileName = file.getName();
-            if (fileName.endsWith(WORD2003)) {
+            if (fileName.endsWith(FileType.WORD2003.getSuffix())) {
                 try (FileInputStream fileInputStream = new FileInputStream(file)) {
                     WordExtractor ex = new WordExtractor(fileInputStream);
                     builder.append(ex.getText());
                 } catch (Exception e) {
                     logger.error(e);
                 }
-            } else if (fileName.endsWith(WORD2007)) {
+            } else if (fileName.endsWith(FileType.WORD2007.getSuffix())) {
                 try (OPCPackage opcPackage = POIXMLDocument.openPackage(file.getPath())) {
                     POIXMLTextExtractor extractor = new XWPFWordExtractor(opcPackage);
                     builder.append(extractor.getText());
