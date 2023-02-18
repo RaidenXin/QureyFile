@@ -137,8 +137,17 @@ public class Controller {
         if (fileList.isEmpty()){
             fileNames.add(NON_EXISTENT);
         }else {
-            QUERIED_COLLECTION_OF_FILES.put(content, fileList.stream().map(File::getPath).collect(Collectors.toList()));
-            fileList.stream().forEach(x -> fileNames.add(x.getName()));
+            final List<String> newFiles = new ArrayList<>();
+            final List<String> oldFiles = QUERIED_COLLECTION_OF_FILES.putIfAbsent(content, newFiles);
+            boolean oldFilesIsNull = Objects.isNull(oldFiles);
+            fileList.stream().forEach(x -> {
+                fileNames.add(x.getPath());
+                if (oldFilesIsNull) {
+                    newFiles.add(x.getPath());
+                } else {
+                    oldFiles.add(x.getPath());
+                }
+            });
         }
         return fileNames;
     }
@@ -187,8 +196,8 @@ public class Controller {
             newFile.mkdir();
         }
         if (file.exists()){
-            final String newFilePath = savePath + file.getName();
-            if(file.renameTo(new File(savePath + file.getName()))) {
+            String newFilePath = getNewFilePath(savePath, file.getName());
+            if(file.renameTo(new File(newFilePath))) {
                 logger.info("重命名成功！");
             }else {
                 AlertUtil.error("文件收集失败！Path:" + newFilePath, new Exception());
@@ -197,5 +206,29 @@ public class Controller {
         }else {
             logger.error("文件不存在！文件Path:" + file.getPath());
         }
+    }
+
+    /**
+     * 获取新文件的 path
+     * @param savePath
+     * @param fileName
+     * @return
+     */
+    private String getNewFilePath(String savePath, String fileName) {
+        final StringBuilder newFilePath = new StringBuilder(savePath);
+        newFilePath.append(fileName);
+        File renameFile = new File(newFilePath.toString());
+        // 如果文件已经存在说明存在同名称的文件 就在文件后面新增序列号
+        int serial = 1;
+        while (renameFile.exists()){
+            //如果存在清空名字 从新生成 在名字前面 加上序列号-
+            newFilePath.setLength(0);
+            newFilePath.append(savePath);
+            newFilePath.append(serial++);
+            newFilePath.append("-");
+            newFilePath.append(fileName);
+            renameFile = new File(newFilePath.toString());
+        }
+        return newFilePath.toString();
     }
 }
