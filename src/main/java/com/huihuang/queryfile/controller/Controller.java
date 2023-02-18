@@ -3,6 +3,7 @@ package com.huihuang.queryfile.controller;
 import com.huihuang.queryfile.common.Constant;
 import com.huihuang.queryfile.common.FileType;
 import com.huihuang.queryfile.utils.AlertUtil;
+import com.huihuang.queryfile.utils.ListUtil;
 import com.huihuang.queryfile.utils.StringUtils;
 import com.huihuang.queryfile.handler.QueryFileProcessor;
 import com.huihuang.queryfile.information.TaskInformation;
@@ -15,6 +16,7 @@ import java.net.URLEncoder;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -39,6 +41,7 @@ public class Controller {
     private JTextArea text;
     private Logger logger = Logger.newInstance();
     private static final Map<String,List<String>> QUERIED_COLLECTION_OF_FILES = new ConcurrentHashMap<>();
+    private static final AtomicBoolean SEARCH_BEACON = new AtomicBoolean(false);
 
     public Controller(JTextArea text){
         this.taskStack = new ConcurrentLinkedQueue<>();
@@ -55,13 +58,17 @@ public class Controller {
      * @param content
      */
     public void add(String path, FileType fileType, String content){
-        taskStack.add(new TaskInformation(path, fileType.getSuffix(), content));
-        lock.lock();
-        try {
-            condition.signal();
-        }finally {
-            lock.unlock();
+        if (SEARCH_BEACON.compareAndSet(false, true)) {
+            taskStack.add(new TaskInformation(path, fileType.getSuffix(), content));
+            lock.lock();
+            try {
+                condition.signal();
+            }finally {
+                lock.unlock();
+            }
+            return;
         }
+        AlertUtil.error("正在搜索中，请勿重复操作！");
     }
 
     /**
@@ -83,6 +90,8 @@ public class Controller {
             try{
                 while (true){
                     if (taskStack.isEmpty()){
+                        // 如果过处理完了任务 说明此次搜索完成
+                        SEARCH_BEACON.compareAndSet(true, false);
                         condition.await();
                     }
                     TaskInformation information = taskStack.poll();
@@ -158,9 +167,13 @@ public class Controller {
      * @param content
      */
     public void obtainFiles(String path, String content){
+        if (SEARCH_BEACON.get()) {
+            AlertUtil.error("正在搜索中，请勿操作搜集！");
+            return;
+        }
         List<String> fileList = QUERIED_COLLECTION_OF_FILES.remove(content);
         File file = new File(path);
-        if (Objects.nonNull(fileList) && !file.isFile()){
+        if (ListUtil.isNotEmpty(fileList) && !file.isFile()) {
             String savePath = path + SEPARATIVE_SIGN + content + SEPARATIVE_SIGN;
             try {
                 for (String f : fileList) {

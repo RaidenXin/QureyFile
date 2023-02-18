@@ -14,6 +14,11 @@ public final class AlertUtil {
         JOptionPane.showMessageDialog(null, messge, "提示", JOptionPane.INFORMATION_MESSAGE);
     }
 
+    public static void error(String errorMessage){
+        String error = errorMessage;
+        JOptionPane.showMessageDialog(null, error, "异常", JOptionPane. ERROR_MESSAGE);
+    }
+
     public static void error(String errorMessage, Throwable e){
         String error = errorMessage + (StringUtils.isBlank(e.getMessage()) ? StringUtils.EMPTY : e.getMessage());
         JOptionPane.showMessageDialog(null, error, "异常", JOptionPane. ERROR_MESSAGE);
